@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+<model name="map5">
+  <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://map5/meshes/map3.dae</uri>
+            <uri>model://map5/meshes/map2.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

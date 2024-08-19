@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/bean/drive/microros_ws/install/micro_ros_agent/include/**",
+        "/home/bean/drive/microros_ws/install/micro_ros_msgs/include/**",
+        "/home/bean/drive/livoxSDK/install/livox_ros_driver2/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/bean/mysim/learn_ros_ws/src/learn_navigation/include/**",
+        "/home/bean/mysim/learn_ros_ws/src/learn_publisher/include/**",
+        "/home/bean/mysim/learn_ros_ws/src/learn_server_client/include/**",
+        "/home/bean/mysim/learn_ros_ws/src/learn_subuscriber/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
