@@ -66,7 +66,10 @@ wget http://fishros.com/install -O fishros && . fishros
 ## 0.安装仿真环境，方便后续调试
 
 ```bash
-sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-* ros-humble-gazebo-ros ros-humble-gazebo-dev ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree ros-humble-nav-msgs
+sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-*
+sudo apt-get install ros-humble-gazebo-ros ros-humble-gazebo-dev 
+sudo apt-get install ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree 
+sudo apt-get install ros-humble-nav-msgs ros-humble-sensor-msgs
 ```
 
 在learn_ros_ws目录下运行以下代码并启动仿真，检验系统环境是否正常,这一步有任何问题都及时问人或者上网搜索
