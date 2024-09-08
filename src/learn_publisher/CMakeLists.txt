@@ -11,6 +11,25 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
+#cmakelist设置变量，这样通过调用dependencies就能直接将我们的依赖全部写进去
+set(dependencies
+rclcpp
+sensor_msgs
+std_msgs
+)
+
+#设置可执行项，也就是我们之后执行ros2 run时执行的目标
+add_executable(my_publisher_exe src/publisher.cpp)
+
+#设置编译依赖，单单引用头文件是不够的，你还需要在编译时连接、包含这个头文件其所在的功能包，
+#调用变量dependencies来一词添加全部依赖
+ament_target_dependencies(my_publisher_exe ${dependencies})
+
+#将编译好的可执行项安装
+install(TARGETS my_publisher_exe
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -22,5 +41,6 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
 
 ament_package()

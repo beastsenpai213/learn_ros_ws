@@ -66,13 +66,13 @@ wget http://fishros.com/install -O fishros && . fishros
 ## 0.安装仿真环境，方便后续调试
 
 ```bash
-sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-* ros-humble-gazebo-ros ros-humble-gazebo-dev ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree
+sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-* ros-humble-gazebo-ros ros-humble-gazebo-dev ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree ros-humble-nav-msgs
 ```
 
 在learn_ros_ws目录下运行以下代码并启动仿真，检验系统环境是否正常,这一步有任何问题都及时问人或者上网搜索
 
 ```bash
-colcon build
+colcon build --packages-select learn_ros_simulation
 source ./install/setup.bash
 ros2 launch learn_ros_simulation rm_simulation.launch.py world:=CUBE use_sim_time:=True
 ```
@@ -192,10 +192,11 @@ install(TARGETS my_node_exe
 )
 ```
 
-接着回到工作空间learn_ros_ws下，编译，更新编译项文件目录，并运行
+接着回到工作空间learn_ros_ws下，编译该功能包，更新编译项文件目录，并运行，
+--pacakges-select用于选择需要编译的功能包，若不配置，则默认全部编译，我们选择my_node功能包进行编译，由于部分章节的依赖与文件目录不完整，在不进行其他章节的配置之前，请用该配置选择指定功能包进行编译以防报错
 
 ```cpp
-colcon build
+colcon build --packages-select my_node
 source ./install/setup.bash
 ros2 run my_node my_node_exe
 ```
@@ -255,9 +256,9 @@ Package.xml添加
 接着工作空间中进行编译运行
 
 ```cpp
-colcon build
+colcon build --packages-select learn_publisher
 source ./install/setup.bash
-ros2 run my_node my_node_exe
+ros2 run learn_publisher my_publisher_exe
 ```
 
 打开rqt，便可以观测到我们发布的速度消息了
@@ -608,7 +609,7 @@ package.xml中
 <depend>python3-opencv</depend>
 ```
 
-运行订阅者
+编译代码，功能包名称为learn_subscriber,根据之前对colcon build的操作自行更改即可，接着同样地用source更新目录后，运行订阅者
 
 ```cpp
 ros2 run learn_subscriber my_subscriber_exe 
@@ -659,7 +660,7 @@ quat.setValue(tf_msgs.transform.rotation.x,tf_msgs.transform.rotation.y,tf_msgs.
 double roll, pitch, yaw;//定义存储r\p\y的容器
 tf2::Matrix3x3 m(quat);//四元数-》欧拉角转换器
 m.getRPY(roll, pitch, yaw);//进行转换
-RCLCPP_INFO(this->get_logger(),"得到坐标变换:map-》odom: x:%f y:%f z:%f r:%f p:%f y:%f \n",
+RCLCPP_INFO(this->get_logger(),"得到坐标变换:odom-》base_footprint: x:%f y:%f z:%f r:%f p:%f y:%f \n",
   tf_msgs.transform.translation.x,tf_msgs.transform.translation.y,tf_msgs.transform.translation.z,roll,pitch,yaw);
 
 //相关变量声明
