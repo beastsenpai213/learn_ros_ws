@@ -67,7 +67,8 @@ wget http://fishros.com/install -O fishros && . fishros
 
 ```bash
 sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-*
-sudo apt-get install ros-humble-gazebo-ros ros-humble-gazebo-dev 
+sudo apt-get install ros-humble-gazebo-ros ros-humble-gazebo-dev  
+sudo apt-get install ros-humble-gazebo-plugins ros-humble-gazebo-ros-control
 sudo apt-get install ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree 
 sudo apt-get install ros-humble-nav-msgs ros-humble-sensor-msgs
 ```
