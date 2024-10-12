@@ -70,7 +70,7 @@ sudo apt-get install gazebo ros-humble-xacro ros-humble-joint-state-*
 sudo apt-get install ros-humble-gazebo-ros ros-humble-gazebo-dev  
 sudo apt-get install ros-humble-gazebo-plugins ros-humble-gazebo-ros-control
 sudo apt-get install ros-humble-gazebo-planar-move* ros-humble-rqt-tf-tree 
-sudo apt-get install ros-humble-nav-msgs ros-humble-sensor-msgs
+sudo apt-get install ros-humble-nav-msgs ros-humble-sensor-msgs ros-humble-nav2_msgs
 ```
 
 在learn_ros_ws目录下运行以下代码并启动仿真，检验系统环境是否正常,这一步有任何问题都及时问人或者上网搜索
@@ -520,7 +520,7 @@ Package.xml添加
 ## 3.订阅图像，坐标变换与路径
 
 订阅者则是订阅消息，消息被订阅的时候，相应的回调函数内的代码将会被执行，就如同定时器那样，相应的时刻到来时会执行回调函数（timer_callback（））内的代码。
-初始化订阅者除了需要初始化订阅者指针和配置订阅者外，相应的回调函数也需要声明与编写，相关的模板代码已经在learn_subscriber中，可以自行学习
+初始化订阅者除了需要初始化订阅者指针和配置订阅者外，相应的回调函数也需要声明与编写，相关的模板代码已经在learn_subscriber中，可以自行学习。
 
 ### 3.1订阅图像（选学，部分环境可能无法运行）
 
