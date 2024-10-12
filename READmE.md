@@ -74,7 +74,9 @@ sudo apt-get install ros-humble-nav-msgs ros-humble-sensor-msgs
 ```
 
 在learn_ros_ws目录下运行以下代码并启动仿真，检验系统环境是否正常,这一步有任何问题都及时问人或者上网搜索
-
+colcon build 用于编译项目，source用于更新可执行文件等编译好的文件的目录，
+只有source后，ros2指令才能寻找到需要运行的执行文件，
+该指令并非是永久生效，每一个新终端都需要配置，可以在~/.bashrc中添加，使每次终端打开时自动执行该指令来实现自动化
 ```bash
 colcon build --packages-select learn_ros_simulation
 source ./install/setup.bash
@@ -276,70 +278,56 @@ ros2 run learn_publisher my_publisher_exe
 坐标变换的消息类型为geometry_msgs::msg::TransformStamped，我们将设计一个动态tf发布者，来实现tf的发布
 
 ```cpp
-//需要包含的头文件，放在开头
+//包含的头文件
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-//创建发布者，放在类的构造函数中
+//构造函数内配置发布者
 tf_publisher_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-
-struct Point {int x;int y;};
-//在定时器回调函数中调用这个函数来执行
-void add_marks()
-{
-    auto marker_array_ = std::make_unique<visualization_msgs::msg::MarkerArray>();
-    //makerarray记号数列的下级消息是marker记号，可以先设置marker变量，再填充给markerarray变量
-    visualization_msgs::msg::Marker point_lines;
-    
-
-    Point points[7] = {{0,0},{2,2},{3,1},{2,0},{3,-1},{2,-2},{0,0}};
-    int count;
-    for(int i=0;i<6;i++)
+//发送消息的函数
+    void update_tf()
     {
-        point_lines.ns = "line_mark";    //标志自己的命名空间namespace  
-        //类型
-        point_lines.type = visualization_msgs::msg::Marker::ARROW;                                                                         
-        // point_lines.type = visualization_msgs::msg::Marker::LINE_LIST;     
-        point_lines.pose.orientation.x=0.0;
-        point_lines.pose.orientation.y=0.0;
-        point_lines.pose.orientation.z=0.0;
-        point_lines.pose.orientation.w=1.0;
-        //lines.action = visualization_msgs::Marker::ADD;
-        point_lines.scale.x = 0.05;
-        //设置线的颜色，a是透明度
-        point_lines.color.r = 1.0;
-        point_lines.color.g = 0.0;
-        point_lines.color.b = 0.0;
-        point_lines.color.a = 1.0;
-        //标志滞留时间
-        builtin_interfaces::msg::Duration lifetime;lifetime.sec = 1;
-        point_lines.lifetime = lifetime;
-        //线的初始点
-        point_lines.id = count;  //与命名空间联合起来，形成唯一的id，这个唯一的id可以将各个标志物区分开来，使得程序可以对指定的标志物进行操作
-        geometry_msgs::msg::Point p_start;
-        p_start.x = points[i].x;
-        p_start.y = points[i].y;
-        p_start.z = 0.0;	
-        //将直线存储到marker容器
-        point_lines.points.push_back(p_start);
+        auto tf_msgs_ = std::make_unique<geometry_msgs::msg::TransformStamped>();
+        tf2::Quaternion quat;//通过四元数描述旋转，避免欧拉角描述旋转导致的万向死锁
 
-        geometry_msgs::msg::Point p_end;
-        p_end.x = points[i+1].x;
-        p_end.y = points[i+1].y;
-        p_end.z = 0.0;
-        point_lines.points.push_back(p_end);
-            
-        point_lines.header.frame_id = "map";
-        point_lines.header.stamp = this->now();
-        marker_array_->markers.push_back(point_lines);
-        point_lines.points.clear();
-        count++;
-    }    
-    markerarray_publisher_->publish(*marker_array_);
-}
+        tf_msgs_->header.stamp = this->now();//赋予消息的时间戳，ROS中，消息通过时间戳来确认消息的新旧
+        tf_msgs_->header.frame_id = "map";//上级tf树
+        tf_msgs_->child_frame_id = "odom";//下级tf树
 
-//添加在private中
-rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr markerarray_publisher_;
+        //位置
+        tf_msgs_->transform.translation.x = 0.5;
+        tf_msgs_->transform.translation.y = 0;
+        tf_msgs_->transform.translation.z = 0;
+
+        //旋转
+        quat.setRPY(0,0,90);//欧拉角转四元数,四元数由xyzw组成，我们需要四个都一起赋值
+        tf_msgs_->transform.rotation.x = quat.x();
+        tf_msgs_->transform.rotation.y = quat.y();
+        tf_msgs_->transform.rotation.z = quat.z();
+        tf_msgs_->transform.rotation.w = quat.w();
+
+        tf_publisher_->sendTransform(*tf_msgs_);
+
+    }
+//坐标变换发布者变量声明
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_publisher_;
+
+```
+Cmakelist.txt添加
+
+```cpp
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(geometry_msgs REQUIRED)
+#记得在变量dependencies中也添加依赖
+```
+
+package.xml
+
+```cpp
+<depend>tf2</depend>
+<depend>tf2_ros</depend>
+<depend>geometry_msgs</depend>
 ```
 
 编译并运行节点，打开rviz2，在左下角add中选择tf类型，选择我们的坐标变换话题，并将**关注的坐标系fixed frame**选中map，此时就可以看见两个坐标系baselink和map了
@@ -371,6 +359,7 @@ rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr markerarray_p
 //创建标识发布者，放在类的构造函数中
 markerarray_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("ros_marker",10);
 
+//结构体定义，需要放在函数之外，类以内，也就是private或public下
 struct Point {int x;int y;};
 //在定时器回调函数中调用这个函数来执行
 void add_marks()
@@ -530,9 +519,10 @@ Package.xml添加
 
 ## 3.订阅图像，坐标变换与路径
 
-订阅者则是订阅消息，消息被订阅的时候，相应的回调函数内的代码将会被执行，就如同定时器那样，相应的时刻到来时会执行函数内的代码，初始化一个订阅者除了订阅者指针和配置订阅者外，相应的回调函数也需要声明与编写，相关的模板代码已经在learn_subscriber中
+订阅者则是订阅消息，消息被订阅的时候，相应的回调函数内的代码将会被执行，就如同定时器那样，相应的时刻到来时会执行回调函数（timer_callback（））内的代码。
+初始化订阅者除了需要初始化订阅者指针和配置订阅者外，相应的回调函数也需要声明与编写，相关的模板代码已经在learn_subscriber中，可以自行学习
 
-### 3.1订阅图像
+### 3.1订阅图像（选学，部分环境可能无法运行）
 
 打开仿真器和rqt，选择visulization中的image View插件，可以发现，我们的仿真小车上有一个摄像头正在发布图像，话题名称为/camera1/image_raw，记下来，在我们订阅这个话题时需要用到
 
